@@ -35,7 +35,9 @@ const App = () => {
           {error}
         </div>
       ) : ingredients.length > 0 ? (
-        <Routes>
+        <Routes
+        // location={}
+        >
           <Route path='/' element={<ConstructorPage />} />
         </Routes>
       ) : (

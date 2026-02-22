@@ -2,12 +2,21 @@ import { forwardRef, useMemo } from 'react';
 import { TIngredientsCategoryProps } from './type';
 import { TIngredient } from '@utils-types';
 import { IngredientsCategoryUI } from '../ui/ingredients-category';
+import { getIngredientsApi } from '@api';
 
 export const IngredientsCategory = forwardRef<
   HTMLUListElement,
   TIngredientsCategoryProps
 >(({ title, titleRef, ingredients }, ref) => {
   /** TODO: взять переменную из стора */
+
+  // const ingredients = useAppSelector(getIngredients);
+  // const ingredientsCounters: { [ key: string]: number} = {};
+
+  // ingredients.forEach((ingredient: TIngredient) => {
+  //   ingredientsCounters[ingredient._id] = 0;
+  // })
+
   const burgerConstructor = {
     bun: {
       _id: ''
