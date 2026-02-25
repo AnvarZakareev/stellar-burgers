@@ -16,6 +16,7 @@ import styles from './app.module.css';
 import { AppHeader } from '@components';
 import { Preloader } from '@ui';
 import { useEffect } from 'react';
+import { ImportsNotUsedAsValues } from 'typescript';
 
 const App = () => {
   useEffect(() => {}, []);
@@ -28,24 +29,25 @@ const App = () => {
   return (
     <div className={styles.app}>
       <AppHeader />
-      {isIngredientsLoading ? (
+      {/* {isIngredientsLoading ? (
         <Preloader />
       ) : error ? (
         <div className={`${styles.error} text text_type_main-medium pt-4`}>
           {error}
         </div>
-      ) : ingredients.length > 0 ? (
-        <Routes
-        // location={}
-        >
-          <Route path='/' element={<ConstructorPage />} />
-        </Routes>
-      ) : (
+      ) : ingredients.length > 0 ? ( */}
+      <Routes
+      // location={}
+      >
+        <Route path='/' element={<ConstructorPage />} />
+        <Route path='/feed' element={<Feed />} />
+      </Routes>
+      {/* ) : (
         // <ConstructorPage />
         <div className={`${styles.title} text text_type_main-medium pt-4`}>
           Нет игредиентов
         </div>
-      )}
+      )} */}
     </div>
   );
 };
