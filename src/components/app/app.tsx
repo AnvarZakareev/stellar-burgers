@@ -16,31 +16,33 @@ import styles from './app.module.css';
 import { AppHeader } from '@components';
 import { Preloader } from '@ui';
 import { useEffect } from 'react';
-import { ImportsNotUsedAsValues } from 'typescript';
+import { useDispatch, useSelector } from '../../services/store/store';
+import { fetchIngredients } from '../../services/ingredients/actions';
 
 const App = () => {
-  useEffect(() => {
-    // Экшон на запрос массива ингридиентов
-  }, []);
+  const dispatch = useDispatch();
 
-  /** TODO: взять переменные из стора */
-  const isIngredientsLoading = false;
-  const ingredients = [];
-  const error = null;
+  const { ingredients, isLoading, error } = useSelector((state) => ({
+    ingredients: state.ingredients.ingredients,
+    isLoading: state.ingredients.isLoading || false,
+    error: state.ingredients.error || null
+  }));
+
+  useEffect(() => {
+    dispatch(fetchIngredients());
+  }, [dispatch]);
 
   return (
     <div className={styles.app}>
       <AppHeader />
-      {isIngredientsLoading ? (
+      {isLoading ? (
         <Preloader />
       ) : error ? (
         <div className={`${styles.error} text text_type_main-medium pt-4`}>
           {error}
         </div>
       ) : ingredients.length > 0 ? (
-        <Routes
-        // location={}
-        >
+        <Routes>
           <Route path='/' element={<ConstructorPage />} />
           <Route path='/feed' element={<Feed />} />
         </Routes>
