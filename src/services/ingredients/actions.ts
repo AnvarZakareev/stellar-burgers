@@ -1,10 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import { getIngredientsApi } from '../../utils/burger-api';
 
 export const fetchIngredients = createAsyncThunk(
   'ingredients/fetchIngredients',
   async () => {
-    const response = await fetch('/api/ingredients');
-    const data = await response.json();
+    const data = await getIngredientsApi();
     return data;
   }
 );
