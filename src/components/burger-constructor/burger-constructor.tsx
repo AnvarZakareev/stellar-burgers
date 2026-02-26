@@ -1,17 +1,56 @@
 import { FC, useMemo } from 'react';
 import { TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
-import { useSelector } from '../../services/store/store';
+import { useSelector, useDispatch } from '../../services/store/store';
+import { setOrderRequest, setOrderModalData } from '../../services/order/slice';
+import { orderBurgerApi } from '../../utils/burger-api';
 
 export const BurgerConstructor: FC = () => {
+  const dispatch = useDispatch();
   const constructorItems = useSelector((state) => state.burgerConstructor);
   const orderRequest = useSelector((state) => state.order.orderRequest);
   const orderModalData = useSelector((state) => state.order.orderModalData);
 
   const onOrderClick = () => {
-    if (!constructorItems.bun || orderRequest) return;
+    if (!constructorItems.bun || orderRequest) {
+      return;
+    }
+    createOrder();
   };
-  const closeOrderModal = () => {};
+
+  const createOrder = async () => {
+    dispatch(setOrderRequest(true));
+
+    try {
+      const ingredients = [
+        constructorItems.bun!._id,
+        ...constructorItems.ingredients.map((item) => item._id),
+        constructorItems.bun!._id
+      ];
+
+      const orderData = await orderBurgerApi(ingredients);
+
+      const orderForModal = {
+        _id: `order_${orderData.order.number}`,
+        status: 'done' as const,
+        name: orderData.name,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        number: orderData.order.number,
+        ingredients: ingredients
+      };
+
+      dispatch(setOrderRequest(false));
+      dispatch(setOrderModalData(orderForModal));
+    } catch (error) {
+      console.error('Ошибка создания заказа:', error);
+      dispatch(setOrderRequest(false));
+    }
+  };
+
+  const closeOrderModal = () => {
+    dispatch(setOrderModalData(null));
+  };
 
   const price = useMemo(
     () =>
