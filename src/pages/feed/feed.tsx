@@ -1,15 +1,37 @@
 import { Preloader } from '@ui';
 import { FeedUI } from '@ui-pages';
 import { TOrder } from '@utils-types';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
+import { useSelector, useDispatch } from '../../services/store/store';
+import { getFeedOrders, feedSlice } from '../../services/feed/slice';
 
 export const Feed: FC = () => {
-  /** TODO: взять переменную из стора */
-  const orders: TOrder[] = [];
+  const dispatch = useDispatch();
 
-  if (!orders.length) {
+  const orders = useSelector(feedSlice.selectors.selectFeedOrders);
+  const isLoading = useSelector(feedSlice.selectors.selectFeedLoading);
+  const error = useSelector(feedSlice.selectors.selectFeedError);
+
+  useEffect(() => {
+    dispatch(getFeedOrders());
+  }, [dispatch]);
+
+  const handleGetFeeds = () => {
+    dispatch(getFeedOrders());
+  };
+
+  if (error) {
+    return (
+      <div className='error'>
+        <p>Ошибка загрузки ленты заказов: {error}</p>
+        <button onClick={handleGetFeeds}>Попробовать снова</button>
+      </div>
+    );
+  }
+
+  if (isLoading || !orders.length) {
     return <Preloader />;
   }
 
-  <FeedUI orders={orders} handleGetFeeds={() => {}} />;
+  return <FeedUI orders={orders} handleGetFeeds={handleGetFeeds} />;
 };

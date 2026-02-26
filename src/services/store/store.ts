@@ -8,11 +8,13 @@ import {
 import { ingredientSlice } from '../ingredients/slice';
 import { constructorSlice } from '../constructor/slice';
 import { orderSlice } from '../order/slice';
+import { feedSlice } from '../feed/slice';
 
 const rootReducer = combineSlices(
   ingredientSlice,
   constructorSlice,
-  orderSlice
+  orderSlice,
+  feedSlice
 );
 
 const store = configureStore({
@@ -21,7 +23,6 @@ const store = configureStore({
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
-
 export type AppDispatch = typeof store.dispatch;
 
 export const useDispatch = dispatchHook.withTypes<AppDispatch>();
