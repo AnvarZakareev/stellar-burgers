@@ -35,11 +35,20 @@ export const constructorSlice = createSlice({
       const [moved] = ingredients.splice(fromIndex, 1);
       ingredients.splice(toIndex, 0, moved);
       state.ingredients = ingredients;
+    },
+    clearConstructor: (state) => {
+      state.bun = null;
+      state.ingredients = [];
     }
   }
 });
 
-export const { addBun, addIngredient, removeIngredient, moveIngredient } =
-  constructorSlice.actions;
+export const {
+  addBun,
+  addIngredient,
+  removeIngredient,
+  moveIngredient,
+  clearConstructor
+} = constructorSlice.actions;
 
 export default constructorSlice.reducer;

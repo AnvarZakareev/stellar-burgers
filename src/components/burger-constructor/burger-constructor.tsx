@@ -3,6 +3,7 @@ import { TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
 import { useSelector, useDispatch } from '../../services/store/store';
 import { setOrderRequest, setOrderModalData } from '../../services/order/slice';
+import { addBun, clearConstructor } from '../../services/constructor/slice';
 import { orderBurgerApi } from '../../utils/burger-api';
 
 export const BurgerConstructor: FC = () => {
@@ -39,6 +40,8 @@ export const BurgerConstructor: FC = () => {
         number: orderData.order.number,
         ingredients: ingredients
       };
+
+      dispatch(clearConstructor());
 
       dispatch(setOrderRequest(false));
       dispatch(setOrderModalData(orderForModal));
