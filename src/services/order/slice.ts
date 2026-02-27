@@ -4,11 +4,15 @@ import { TOrder } from '../../utils/types';
 type TOrderState = {
   orderRequest: boolean;
   orderModalData: TOrder | null;
+  currentOrder: TOrder | null;
+  loading: boolean;
 };
 
 const initialState: TOrderState = {
   orderRequest: false,
-  orderModalData: null
+  orderModalData: null,
+  currentOrder: null,
+  loading: false
 };
 
 export const orderSlice = createSlice({
@@ -20,14 +24,25 @@ export const orderSlice = createSlice({
     },
     setOrderModalData: (state, action: PayloadAction<TOrder | null>) => {
       state.orderModalData = action.payload;
+    },
+    setCurrentOrder: (state, action: PayloadAction<TOrder | null>) => {
+      state.currentOrder = action.payload;
+    },
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload;
     }
   },
   selectors: {
     selectOrderRequest: (state) => state.orderRequest,
-    selectOrderModalData: (state) => state.orderModalData
+    selectOrderModalData: (state) => state.orderModalData,
+    selectCurrentOrder: (state) => state.currentOrder,
+    selectLoading: (state) => state.loading
   }
 });
 
-export const { setOrderRequest, setOrderModalData } = orderSlice.actions;
-
-export default orderSlice.reducer;
+export const {
+  setOrderRequest,
+  setOrderModalData,
+  setCurrentOrder,
+  setLoading
+} = orderSlice.actions;
