@@ -270,6 +270,5 @@ export const validateUserAuth = async (): Promise<{
     return { isAuth: false };
   }
 };
-
 export const hasAuthTokens = (): boolean =>
   !!(getCookie('accessToken') && localStorage.getItem('refreshToken'));
