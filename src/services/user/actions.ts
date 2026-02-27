@@ -46,3 +46,10 @@ export const resetPassword = createAsyncThunk(
   async (resetData: { password: string; token: string }) =>
     await resetPasswordApi(resetData)
 );
+
+// export const checkUserAuth = createAsyncThunk(
+//   'user/checkUserAuth',
+//   async (__,{ dispath }) => {
+//     if (api)
+//   }
+// );
