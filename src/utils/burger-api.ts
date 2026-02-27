@@ -57,6 +57,14 @@ export const fetchWithRefresh = async <T>(
   }
 };
 
+const getAccessTokenSafe = (): string => {
+  const token = getCookie('accessToken');
+  if (!token) {
+    throw new Error('Access token not found');
+  }
+  return token;
+};
+
 type TIngredientsResponse = TServerResponse<{
   data: TIngredient[];
 }>;
@@ -65,10 +73,6 @@ type TFeedsResponse = TServerResponse<{
   orders: TOrder[];
   total: number;
   totalToday: number;
-}>;
-
-type TOrdersResponse = TServerResponse<{
-  data: TOrder[];
 }>;
 
 export const getIngredientsApi = () =>
@@ -87,17 +91,23 @@ export const getFeedsApi = () =>
       return Promise.reject(data);
     });
 
-export const getOrdersApi = () =>
-  fetchWithRefresh<TFeedsResponse>(`${URL}/orders`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json;charset=utf-8',
-      authorization: getCookie('accessToken')
-    } as HeadersInit
-  }).then((data) => {
-    if (data?.success) return data.orders;
-    return Promise.reject(data);
-  });
+export const getOrdersApi = () => {
+  try {
+    const accessToken = getAccessTokenSafe();
+    return fetchWithRefresh<TFeedsResponse>(`${URL}/orders`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        authorization: accessToken
+      } as HeadersInit
+    }).then((data) => {
+      if (data?.success) return data.orders;
+      return Promise.reject(data);
+    });
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
 
 type TOwner = {
   name: string;
@@ -122,20 +132,26 @@ type TNewOrderResponse = TServerResponse<{
   name: string;
 }>;
 
-export const orderBurgerApi = (data: string[]) =>
-  fetchWithRefresh<TNewOrderResponse>(`${URL}/orders`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json;charset=utf-8',
-      authorization: getCookie('accessToken')
-    } as HeadersInit,
-    body: JSON.stringify({
-      ingredients: data
-    })
-  }).then((data) => {
-    if (data?.success) return data;
-    return Promise.reject(data);
-  });
+export const orderBurgerApi = (data: string[]) => {
+  try {
+    const accessToken = getAccessTokenSafe();
+    return fetchWithRefresh<TNewOrderResponse>(`${URL}/orders`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        authorization: accessToken
+      } as HeadersInit,
+      body: JSON.stringify({
+        ingredients: data
+      })
+    }).then((data) => {
+      if (data?.success) return data;
+      return Promise.reject(data);
+    });
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
 
 type TOrderResponse = TServerResponse<{
   orders: TOrder[];
@@ -171,7 +187,11 @@ export const registerUserApi = (data: TRegisterData) =>
   })
     .then((res) => checkResponse<TAuthResponse>(res))
     .then((data) => {
-      if (data?.success) return data;
+      if (data?.success) {
+        localStorage.setItem('refreshToken', data.refreshToken);
+        setCookie('accessToken', data.accessToken);
+        return data;
+      }
       return Promise.reject(data);
     });
 
@@ -190,7 +210,11 @@ export const loginUserApi = (data: TLoginData) =>
   })
     .then((res) => checkResponse<TAuthResponse>(res))
     .then((data) => {
-      if (data?.success) return data;
+      if (data?.success) {
+        localStorage.setItem('refreshToken', data.refreshToken);
+        setCookie('accessToken', data.accessToken);
+        return data;
+      }
       return Promise.reject(data);
     });
 
@@ -224,33 +248,61 @@ export const resetPasswordApi = (data: { password: string; token: string }) =>
 
 type TUserResponse = TServerResponse<{ user: TUser }>;
 
-export const getUserApi = () =>
-  fetchWithRefresh<TUserResponse>(`${URL}/auth/user`, {
-    headers: {
-      authorization: getCookie('accessToken')
-    } as HeadersInit
-  });
+export const getUserApi = () => {
+  try {
+    const accessToken = getAccessTokenSafe();
+    return fetchWithRefresh<TUserResponse>(`${URL}/auth/user`, {
+      headers: {
+        authorization: accessToken
+      } as HeadersInit
+    });
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
 
-export const updateUserApi = (user: Partial<TRegisterData>) =>
-  fetchWithRefresh<TUserResponse>(`${URL}/auth/user`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json;charset=utf-8',
-      authorization: getCookie('accessToken')
-    } as HeadersInit,
-    body: JSON.stringify(user)
-  });
+export const updateUserApi = (user: Partial<TRegisterData>) => {
+  try {
+    const accessToken = getAccessTokenSafe();
+    return fetchWithRefresh<TUserResponse>(`${URL}/auth/user`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        authorization: accessToken
+      } as HeadersInit,
+      body: JSON.stringify(user)
+    });
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
 
-export const logoutApi = () =>
-  fetch(`${URL}/auth/logout`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json;charset=utf-8'
-    },
-    body: JSON.stringify({
-      token: localStorage.getItem('refreshToken')
-    })
-  }).then((res) => checkResponse<TServerResponse<{}>>(res));
+export const logoutApi = async (): Promise<TServerResponse<{}>> => {
+  try {
+    const accessToken = getCookie('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    if (!accessToken || !refreshToken) {
+      return { success: true };
+    }
+
+    const response = await fetch(`${URL}/auth/logout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        authorization: accessToken
+      },
+      body: JSON.stringify({
+        token: refreshToken
+      })
+    });
+
+    return await checkResponse<TServerResponse<{}>>(response);
+  } catch (error) {
+    console.warn('Logout API failed:', error);
+    return { success: true };
+  }
+};
 
 export const validateUserAuth = async (): Promise<{
   isAuth: boolean;
@@ -259,7 +311,6 @@ export const validateUserAuth = async (): Promise<{
   if (!hasAuthTokens()) {
     return { isAuth: false };
   }
-
   try {
     const response = await getUserApi();
     if (response.success && response.user) {
@@ -270,5 +321,11 @@ export const validateUserAuth = async (): Promise<{
     return { isAuth: false };
   }
 };
+
 export const hasAuthTokens = (): boolean =>
   !!(getCookie('accessToken') && localStorage.getItem('refreshToken'));
+
+export const clearTokens = (): void => {
+  localStorage.removeItem('refreshToken');
+  setCookie('accessToken', '', { expires: -1 });
+};
