@@ -7,6 +7,7 @@ import {
   selectProfileLoading,
   selectProfileError
 } from '../../services/profile/slice';
+import { Preloader } from '../../components/ui/preloader/preloader';
 
 export const ProfileOrders: FC = () => {
   const dispatch = useDispatch();
@@ -19,7 +20,7 @@ export const ProfileOrders: FC = () => {
   }, [dispatch]);
 
   if (isLoading && orders.length === 0) {
-    return <div>Загрузка заказов...</div>;
+    return <Preloader />;
   }
 
   if (error) {
