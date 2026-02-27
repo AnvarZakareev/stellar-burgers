@@ -8,7 +8,8 @@ import {
   getUserApi,
   updateUserApi,
   forgotPasswordApi,
-  resetPasswordApi
+  resetPasswordApi,
+  isUserAuthenticated
 } from '../../utils/burger-api';
 
 export const logout = createAsyncThunk(
@@ -47,9 +48,33 @@ export const resetPassword = createAsyncThunk(
     await resetPasswordApi(resetData)
 );
 
-// export const checkUserAuth = createAsyncThunk(
-//   'user/checkUserAuth',
-//   async (__,{ dispath }) => {
-//     if (api)
-//   }
-// );
+export const checkUserAuth = createAsyncThunk(
+  'user/checkUserAuth',
+  async (_, { rejectWithValue }) => {
+    try {
+      // Проверяем наличие refresh токена
+      const refreshToken = localStorage.getItem('refreshToken');
+
+      if (!refreshToken) {
+        return rejectWithValue('No refresh token');
+      }
+
+      // getUserApi сам обработает токены и их обновление
+      const userData = await getUserApi();
+
+      if (userData.success && userData.user) {
+        return userData;
+      } else {
+        return rejectWithValue('Invalid user data');
+      }
+    } catch (error) {
+      return rejectWithValue('Authentication failed');
+    }
+  }
+);
+
+// Дополнительный thunk для быстрой проверки наличия токенов
+export const checkTokensExist = createAsyncThunk(
+  'user/checkTokensExist',
+  async () => isUserAuthenticated()
+);

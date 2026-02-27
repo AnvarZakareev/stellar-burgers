@@ -30,6 +30,7 @@ import { Preloader } from '@ui';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from '../../services/store/store';
 import { fetchIngredients } from '../../services/ingredients/actions';
+import { checkUserAuth } from '../../services/user/actions';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -46,6 +47,10 @@ const App = () => {
   useEffect(() => {
     dispatch(fetchIngredients());
   }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(checkUserAuth());
+  }, []);
 
   const handleCloseModal = () => {
     navigate(-1);
