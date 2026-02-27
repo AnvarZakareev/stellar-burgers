@@ -21,6 +21,10 @@ export const orderSlice = createSlice({
     setOrderModalData: (state, action: PayloadAction<TOrder | null>) => {
       state.orderModalData = action.payload;
     }
+  },
+  selectors: {
+    selectOrderRequest: (state) => state.orderRequest,
+    selectOrderModalData: (state) => state.orderModalData
   }
 });
 
