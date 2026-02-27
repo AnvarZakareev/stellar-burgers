@@ -38,20 +38,14 @@ const App = () => {
   const location = useLocation();
   const background = location.state?.background;
 
-  const {
-    ingredients,
-    isLoading: ingredientsLoading,
-    error
-  } = useSelector((state) => ({
-    ingredients: state.ingredients.ingredients,
-    isLoading: state.ingredients.isLoading,
-    error: state.ingredients.error
-  }));
+  const ingredients = useSelector((state) => state.ingredients.ingredients);
+  const ingredientsLoading = useSelector(
+    (state) => state.ingredients.isLoading
+  );
+  const error = useSelector((state) => state.ingredients.error);
 
-  const { isAuthChecked, isLoading: userLoading } = useSelector((state) => ({
-    isAuthChecked: state.user.isAuthChecked,
-    isLoading: state.user.isLoading
-  }));
+  const isAuthChecked = useSelector((state) => state.user.isAuthChecked);
+  const userLoading = useSelector((state) => state.user.isLoading);
 
   useEffect(() => {
     dispatch(fetchIngredients());
