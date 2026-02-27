@@ -9,8 +9,9 @@ import {
   updateUserApi,
   forgotPasswordApi,
   resetPasswordApi,
-  isUserAuthenticated
+  refreshToken
 } from '../../utils/burger-api';
+import { validateUserAuth } from '../../utils/burger-api';
 
 export const logout = createAsyncThunk(
   'user/logout',
@@ -52,29 +53,24 @@ export const checkUserAuth = createAsyncThunk(
   'user/checkUserAuth',
   async (_, { rejectWithValue }) => {
     try {
-      // Проверяем наличие refresh токена
-      const refreshToken = localStorage.getItem('refreshToken');
-
-      if (!refreshToken) {
-        return rejectWithValue('No refresh token');
+      const { isAuth, user } = await validateUserAuth();
+      if (isAuth && user) {
+        return { success: true, user };
       }
-
-      // getUserApi сам обработает токены и их обновление
-      const userData = await getUserApi();
-
-      if (userData.success && userData.user) {
-        return userData;
-      } else {
-        return rejectWithValue('Invalid user data');
-      }
+      return rejectWithValue('User not authenticated');
     } catch (error) {
       return rejectWithValue('Authentication failed');
     }
   }
 );
 
-// Дополнительный thunk для быстрой проверки наличия токенов
-export const checkTokensExist = createAsyncThunk(
-  'user/checkTokensExist',
-  async () => isUserAuthenticated()
+export const refreshUserToken = createAsyncThunk(
+  'user/refreshToken',
+  async (_, { rejectWithValue }) => {
+    try {
+      return await refreshToken();
+    } catch (error) {
+      return rejectWithValue('Token refresh failed');
+    }
+  }
 );

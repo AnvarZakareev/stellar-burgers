@@ -252,40 +252,19 @@ export const logoutApi = () =>
     })
   }).then((res) => checkResponse<TServerResponse<{}>>(res));
 
-export const isUserAuthenticated = (): boolean => {
-  const accessToken = getCookie('accessToken');
-  const refreshToken = localStorage.getItem('refreshToken');
-
-  return !!(accessToken && refreshToken);
-};
-
-export const checkAuthStatus = async (): Promise<boolean> => {
-  try {
-    const userData = await getUserApi();
-    return userData.success && !!userData.user;
-  } catch (error) {
-    return false;
-  }
-};
-
 export const validateUserAuth = async (): Promise<{
   isAuth: boolean;
   user?: TUser;
 }> => {
-  const accessToken = getCookie('accessToken');
-  const refreshToken = localStorage.getItem('refreshToken');
-
-  if (!accessToken || !refreshToken) {
+  if (!hasAuthTokens()) {
     return { isAuth: false };
   }
 
   try {
     const response = await getUserApi();
-
     if (response.success && response.user) {
       return { isAuth: true, user: response.user };
     }
-
     return { isAuth: false };
   } catch (error) {
     return { isAuth: false };
