@@ -7,7 +7,9 @@ import {
   getUser,
   updateUser,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  checkUserAuth,
+  refreshUserToken
 } from './actions';
 
 export interface UserState {
@@ -159,6 +161,39 @@ export const userSlice = createSlice({
       .addCase(resetPassword.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'Ошибка сброса пароля';
+      })
+      .addCase(checkUserAuth.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(checkUserAuth.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
+        state.isAuthChecked = true;
+        state.error = null;
+      })
+      .addCase(checkUserAuth.rejected, (state, action) => {
+        state.isLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
+        state.isAuthChecked = true;
+        state.error = null;
+      })
+      .addCase(refreshUserToken.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(refreshUserToken.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+      })
+      .addCase(refreshUserToken.rejected, (state, action) => {
+        state.isLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
+        state.isAuthChecked = true;
+        state.error = 'Сессия истекла';
       });
   },
   selectors: {
