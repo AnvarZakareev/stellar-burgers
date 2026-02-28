@@ -14,10 +14,8 @@ export const ProtectedRoute: FC<ProtectedRouteProps> = ({
 }) => {
   const location = useLocation();
 
-  const { isAuthenticated, isAuthChecked } = useSelector((state) => ({
-    isAuthenticated: state.user.isAuthenticated,
-    isAuthChecked: state.user.isAuthChecked
-  }));
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+  const isAuthChecked = useSelector((state) => state.user.isAuthChecked);
 
   if (!isAuthChecked) {
     return <Preloader />;

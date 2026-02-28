@@ -43,6 +43,13 @@ export const userSlice = createSlice({
     resetPasswordState: (state) => {
       state.passwordResetRequested = false;
       state.error = null;
+    },
+    forceLogout: (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+      state.isAuthChecked = true;
+      state.isLoading = false;
+      state.error = null;
     }
   },
   extraReducers: (builder) => {
@@ -63,7 +70,7 @@ export const userSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
         state.isAuthChecked = true;
-        state.error = action.error.message || 'Ошибка входа';
+        state.error = (action.payload as string) || 'Ошибка входа';
       })
       .addCase(register.pending, (state) => {
         state.isLoading = true;
@@ -99,7 +106,7 @@ export const userSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
         state.isAuthChecked = true;
-        state.error = action.error.message || 'Ошибка выхода';
+        state.error = null;
       })
       .addCase(getUser.pending, (state) => {
         state.isLoading = true;

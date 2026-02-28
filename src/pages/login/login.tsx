@@ -1,4 +1,4 @@
-import { FC, SyntheticEvent, useState } from 'react';
+import { FC, SyntheticEvent, useState, useEffect } from 'react';
 import { LoginUI } from '@ui-pages';
 import { useSelector, useDispatch } from '../../services/store/store';
 import { login } from '../../services/user/actions';
@@ -18,10 +18,12 @@ export const Login: FC = () => {
 
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
 
-  if (isAuthenticated) {
-    const from = location.state?.from || '/constructor';
-    navigate(from, { replace: true });
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      const from = location.state?.from?.pathname || '/';
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, location.state]);
 
   return (
     <LoginUI

@@ -45,22 +45,28 @@ export const fetchWithRefresh = async <T>(
   } catch (err) {
     if ((err as { message: string }).message === 'jwt expired') {
       const refreshData = await refreshToken();
-      if (options.headers) {
-        (options.headers as { [key: string]: string }).authorization =
-          refreshData.accessToken;
-      }
-      const res = await fetch(url, options);
+      const newOptions = {
+        ...options,
+        headers: {
+          ...options.headers,
+          authorization: refreshData.accessToken
+        }
+      };
+      const res = await fetch(url, newOptions);
       return await checkResponse<T>(res);
-    } else {
-      return Promise.reject(err);
     }
+    throw err;
   }
 };
 
 const getAccessTokenSafe = (): string => {
   const token = getCookie('accessToken');
   if (!token) {
-    throw new Error('Access token not found');
+    const error = new Error('Access token not found') as Error & {
+      message: string;
+    };
+    error.message = 'jwt expired';
+    throw error;
   }
   return token;
 };
@@ -281,11 +287,10 @@ export const logoutApi = async (): Promise<TServerResponse<{}>> => {
   try {
     const accessToken = getCookie('accessToken');
     const refreshToken = localStorage.getItem('refreshToken');
-
     if (!accessToken || !refreshToken) {
+      clearTokens();
       return { success: true };
     }
-
     const response = await fetch(`${URL}/auth/logout`, {
       method: 'POST',
       headers: {
@@ -296,19 +301,20 @@ export const logoutApi = async (): Promise<TServerResponse<{}>> => {
         token: refreshToken
       })
     });
-
-    return await checkResponse<TServerResponse<{}>>(response);
+    const result = await checkResponse<TServerResponse<{}>>(response);
+    clearTokens();
+    return result;
   } catch (error) {
-    console.warn('Logout API failed:', error);
+    clearTokens();
     return { success: true };
   }
 };
-
 export const validateUserAuth = async (): Promise<{
   isAuth: boolean;
   user?: TUser;
 }> => {
   if (!hasAuthTokens()) {
+    clearTokens();
     return { isAuth: false };
   }
   try {
@@ -316,14 +322,19 @@ export const validateUserAuth = async (): Promise<{
     if (response.success && response.user) {
       return { isAuth: true, user: response.user };
     }
+    clearTokens();
     return { isAuth: false };
   } catch (error) {
+    clearTokens();
     return { isAuth: false };
   }
 };
 
-export const hasAuthTokens = (): boolean =>
-  !!(getCookie('accessToken') && localStorage.getItem('refreshToken'));
+export const hasAuthTokens = (): boolean => {
+  const accessToken = getCookie('accessToken');
+  const refreshToken = localStorage.getItem('refreshToken');
+  return !!(accessToken && refreshToken);
+};
 
 export const clearTokens = (): void => {
   localStorage.removeItem('refreshToken');

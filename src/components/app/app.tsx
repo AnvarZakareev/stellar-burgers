@@ -27,7 +27,7 @@ import {
   IngredientDetails
 } from '@components';
 import { Preloader } from '@ui';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from '../../services/store/store';
 import { fetchIngredients } from '../../services/ingredients/actions';
 import { checkUserAuth } from '../../services/user/actions';
@@ -37,6 +37,8 @@ const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const background = location.state?.background;
+
+  const isInitialized = useRef(false);
 
   const ingredients = useSelector((state) => state.ingredients.ingredients);
   const ingredientsLoading = useSelector(
@@ -56,7 +58,7 @@ const App = () => {
     navigate(-1);
   };
 
-  if (!isAuthChecked || ingredientsLoading) {
+  if (!isAuthChecked || ingredientsLoading || userLoading) {
     return (
       <div className={styles.app}>
         <AppHeader />
