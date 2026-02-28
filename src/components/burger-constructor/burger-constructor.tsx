@@ -5,17 +5,26 @@ import { useSelector, useDispatch } from '../../services/store/store';
 import { setOrderRequest, setOrderModalData } from '../../services/order/slice';
 import { addBun, clearConstructor } from '../../services/constructor/slice';
 import { orderBurgerApi } from '../../utils/burger-api';
+import { useNavigate } from 'react-router-dom';
 
 export const BurgerConstructor: FC = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const constructorItems = useSelector((state) => state.burgerConstructor);
   const orderRequest = useSelector((state) => state.order.orderRequest);
   const orderModalData = useSelector((state) => state.order.orderModalData);
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
 
   const onOrderClick = () => {
     if (!constructorItems.bun || orderRequest) {
       return;
     }
+
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: '/constructor' } });
+      return;
+    }
+
     createOrder();
   };
 
