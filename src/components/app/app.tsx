@@ -38,7 +38,7 @@ const App = () => {
   const location = useLocation();
   const background = location.state?.background;
 
-  const isInitialized = useRef(false);
+  // const isInitialized = useRef(false);
 
   const ingredients = useSelector((state) => state.ingredients.ingredients);
   const ingredientsLoading = useSelector(

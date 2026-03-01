@@ -21,7 +21,7 @@ export const BurgerConstructor: FC = () => {
     }
 
     if (!isAuthenticated) {
-      navigate('/login', { state: { from: '/constructor' } });
+      navigate('/login', { state: { from: '/' } });
       return;
     }
 
