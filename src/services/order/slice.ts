@@ -46,3 +46,5 @@ export const {
   setCurrentOrder,
   setLoading
 } = orderSlice.actions;
+
+export default orderSlice.reducer;

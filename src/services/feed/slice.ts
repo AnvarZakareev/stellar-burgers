@@ -62,3 +62,5 @@ export const feedSlice = createSlice({
 });
 
 export const { clearFeedError } = feedSlice.actions;
+
+export default feedSlice.reducer;

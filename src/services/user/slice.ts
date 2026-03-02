@@ -213,5 +213,6 @@ export const userSlice = createSlice({
   }
 });
 
-export const { clearError, setAuthChecked, resetPasswordState } =
+export const { clearError, setAuthChecked, resetPasswordState, forceLogout } =
   userSlice.actions;
+export default userSlice.reducer;
