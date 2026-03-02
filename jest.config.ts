@@ -202,6 +202,7 @@ const config: JestConfigWithTsJest = {
     // если есть другие алиасы, добавь их по аналогии
   },
   preset: 'ts-jest',
+  testEnvironment: 'jsdom',
   transform: {
     // '^.+\\.[tj]sx?$' для обработки файлов js/ts с помощью `ts-jest`
     // '^.+\\.m?[tj]sx?$' для обработки файлов js/ts/mjs/mts с помощью `ts-jest`
