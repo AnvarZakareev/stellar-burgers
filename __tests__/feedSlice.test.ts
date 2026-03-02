@@ -1,57 +1,64 @@
-import reducer, {
-  initialState,
-  clearFeedError
-} from '../src/services/feed/slice';
+import reducer, { clearFeedError } from '../src/services/feed/slice';
 import { getFeedOrders } from '../src/services/feed/slice';
+import { FeedState } from '../src/services/feed/slice';
+import { TOrder } from '../src/utils/types';
+
+const initialState: FeedState = {
+  orders: [],
+  total: 0,
+  totalToday: 0,
+  isLoading: false,
+  error: null
+};
+
+const stubOrder: TOrder = {
+  _id: 'order1',
+  name: 'Order 1',
+  status: 'done',
+  createdAt: '2023-01-01',
+  updatedAt: '2023-01-01',
+  number: 1,
+  ingredients: ['id1', 'id2']
+};
 
 describe('feedSlice', () => {
-  it('возвращает начальное состояние', () => {
-    expect(reducer(undefined, { type: 'unknown' })).toEqual(initialState);
+  it('возвращает initialState', () => {
+    expect(reducer(undefined, { type: '' })).toEqual(initialState);
   });
 
-  it('feed pending', () => {
-    const action = { type: getFeedOrders.pending.type };
-    const state = reducer(initialState, action);
-    expect(state.isLoading).toBe(true);
+  it('pending getFeedOrders', () => {
+    const state = reducer(initialState, { type: getFeedOrders.pending.type });
+    expect(state.isLoading).toBeTruthy();
     expect(state.error).toBeNull();
   });
 
-  it('feed fulfilled', () => {
+  it('fulfilled getFeedOrders', () => {
     const payload = {
-      orders: [
-        {
-          _id: '1',
-          name: '',
-          status: '',
-          createdAt: '',
-          updatedAt: '',
-          number: 1,
-          ingredients: []
-        }
-      ],
-      total: 111,
-      totalToday: 10
+      orders: [stubOrder],
+      total: 10,
+      totalToday: 2
     };
-    const action = { type: getFeedOrders.fulfilled.type, payload };
-    const state = reducer({ ...initialState, isLoading: true }, action);
-    expect(state.isLoading).toBe(false);
-    expect(state.orders).toEqual(payload.orders);
-    expect(state.total).toBe(payload.total);
-    expect(state.totalToday).toBe(payload.totalToday);
+    const state = reducer(initialState, {
+      type: getFeedOrders.fulfilled.type,
+      payload
+    });
+    expect(state.isLoading).toBeFalsy();
+    expect(state.orders).toEqual([stubOrder]);
+    expect(state.total).toBe(10);
+    expect(state.totalToday).toBe(2);
   });
 
-  it('feed rejected', () => {
-    const action = {
+  it('rejected getFeedOrders', () => {
+    const state = reducer(initialState, {
       type: getFeedOrders.rejected.type,
-      error: { message: 'fail!' }
-    };
-    const state = reducer({ ...initialState, isLoading: true }, action);
-    expect(state.isLoading).toBe(false);
-    expect(state.error).toBe('fail!');
+      error: { message: 'fail' }
+    });
+    expect(state.isLoading).toBeFalsy();
+    expect(state.error).toBe('fail');
   });
 
-  it('clearFeedError очищает ошибку', () => {
-    const start = { ...initialState, error: 'err' };
-    expect(reducer(start, clearFeedError())).toEqual({ ...start, error: null });
+  it('clearFeedError', () => {
+    const stateWithErr = { ...initialState, error: 'some' };
+    expect(reducer(stateWithErr, clearFeedError()).error).toBeNull();
   });
 });
