@@ -8,7 +8,7 @@ export interface ProfileState {
   error: string | null;
 }
 
-const initialState: ProfileState = {
+export const initialState: ProfileState = {
   orders: [],
   isLoading: false,
   error: null
