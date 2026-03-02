@@ -2,6 +2,7 @@ import reducer, { clearFeedError } from '../src/services/feed/slice';
 import { getFeedOrders } from '../src/services/feed/slice';
 import { FeedState } from '../src/services/feed/slice';
 import { TOrder } from '../src/utils/types';
+import { feedSlice } from '../src/services/feed/slice';
 
 const initialState: FeedState = {
   orders: [],
@@ -20,6 +21,17 @@ const stubOrder: TOrder = {
   number: 1,
   ingredients: ['id1', 'id2']
 };
+
+const selectors = feedSlice.selectors;
+
+const stub = {
+  orders: [1],
+  total: 11,
+  totalToday: 1,
+  isLoading: true,
+  error: 'err'
+};
+const state = { feed: stub };
 
 describe('feedSlice', () => {
   it('возвращает initialState', () => {
@@ -60,5 +72,21 @@ describe('feedSlice', () => {
   it('clearFeedError', () => {
     const stateWithErr = { ...initialState, error: 'some' };
     expect(reducer(stateWithErr, clearFeedError()).error).toBeNull();
+  });
+
+  it('selectFeedOrders', () => {
+    expect(selectors.selectFeedOrders(state)).toEqual([1]);
+  });
+  it('selectFeedTotal', () => {
+    expect(selectors.selectFeedTotal(state)).toEqual(11);
+  });
+  it('selectFeedTotalToday', () => {
+    expect(selectors.selectFeedTotalToday(state)).toEqual(1);
+  });
+  it('selectFeedLoading', () => {
+    expect(selectors.selectFeedLoading(state)).toBe(true);
+  });
+  it('selectFeedError', () => {
+    expect(selectors.selectFeedError(state)).toBe('err');
   });
 });
